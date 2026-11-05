@@ -55,6 +55,7 @@ def to_ptrapphim(x, return_mass=True, eps=1e-8):
     # rapidity = 0.5 * torch.log((energy + pz) / (energy - pz))
     rapidity = 0.5 * torch.log(1 + (2 * pz) / (energy - pz).clamp(min=1e-20))
     phi = torch.atan2(py, px)
+    phi = torch.where((py == 0) & (px == 0), torch.zeros_like(phi), phi)
     if not return_mass:
         return torch.cat((pt, rapidity, phi), dim=1)
     else:
@@ -68,6 +69,7 @@ def to_spherical(coords):
     r = torch.sqrt(to_p2(coords, eps=None))
     theta = torch.acos((z / r.clamp(min=1e-8)).clamp(-1, 1))
     phi = torch.atan2(y, x)
+    phi = torch.where((py == 0) & (px == 0), torch.zeros_like(phi), phi)
     return r, theta, phi
 
 
@@ -76,6 +78,7 @@ def to_cylindrical(coords):
     x, y, z = coords[:, :3].split((1, 1, 1), dim=1)
     rho = torch.sqrt(to_pt2(coords, eps=None))
     phi = torch.atan2(y, x)
+    phi = torch.where((py == 0) & (px == 0), torch.zeros_like(phi), phi)
     return rho, phi, z
 
 
